@@ -1,0 +1,35 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+cc_library(
+    name = "cc_includes",
+    hdrs = glob(["deps/**/*.hpp"]),
+    strip_include_prefix = "deps",
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "config.go",
+        "jieba.cpp",
+        "jieba.go",
+        "jieba.h",
+        "util.c",
+        "util.go",
+        "util.h",
+    ],
+    cgo = True,
+    copts = ["-DLOGGING_LEVEL=LL_WARNING -O3 -Wall"],
+    importpath = "github.com/yanyiwu/gojieba",
+    cdeps = [":cc_includes"],
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "config_test.go",
+        "jieba_test.go",
+    ],
+    embed = [":go_default_library"],
+    data = glob(["dict/*.utf8"]),
+)
